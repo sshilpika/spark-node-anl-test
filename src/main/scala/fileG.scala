@@ -26,14 +26,14 @@ object fileG{
 
     println("RDD SORTED ")
       val RDDSort= performance{
-        RddSort(mustSort)
+        RddSort(mustSort,size)
       }
 
 
     val mustSortDF = mustSort.toDF()
     println("DF sorted :")
     val DFSort = performance {
-      dataFrameSort(mustSortDF)
+      dataFrameSort(mustSortDF,size)
     }
 
     //TODO write results to CSV instead of text file
@@ -61,17 +61,17 @@ object fileG{
     one.flatMap(x => Seq.fill(x)(Random.nextInt))
   }
 
-    def RddSort(mustSort: RDD[Int]): Long ={
+    def RddSort(mustSort: RDD[Int],size: Int): Long ={
       val result = mustSort.sortBy(c=>c,true)
-      result.saveAsTextFile("RDDSortedRes")
+      result.saveAsTextFile("RDDSortedRes"+size*size)
       result.count()
 
     }
 
-    def dataFrameSort(df: DataFrame): Long ={
+    def dataFrameSort(df: DataFrame,size: Int): Long ={
 
       val sorted = df.sort("_1")
-      val writeInto = sorted.write.save("DFSortedRes")
+      val writeInto = sorted.write.save("DFSortedRes"+size*size)
 
       sorted.count()
 
