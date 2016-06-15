@@ -53,7 +53,7 @@ object fileG{
   }
 
   def fileGen(size : Int): RDD[Int] ={
-    val one = spark.parallelize(Seq.fill(size)(size))
+    val one = spark.parallelize(Seq.fill(size)(size),32)
     one.flatMap(x => Seq.fill(x)(Random.nextInt))
   }
 
