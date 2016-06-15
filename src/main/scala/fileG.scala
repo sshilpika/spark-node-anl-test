@@ -8,7 +8,7 @@ import org.apache.spark._
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{StructType, StructField, StringType, IntegerType}
 
-case class Config(fileSize: Option[Int] = Some(10),master: Option[String] = None)
+case class Config(fileSize: Option[Int] = Some(1000000),master: Option[String] = Some("cluster"))
 
 object fileG{
   val conf = new SparkConf().setAppName("Random Integer Sort File Generator")

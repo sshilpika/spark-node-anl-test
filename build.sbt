@@ -4,7 +4,7 @@ version := "1.0"
 
 scalaVersion := "2.10.6"
 
-resolvers += "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/"
+//resolvers += "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % Test,
