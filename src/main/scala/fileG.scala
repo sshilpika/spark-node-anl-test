@@ -7,7 +7,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark._
 import org.apache.spark.sql._
 
-case class Config(fileSize: Option[Int] = Some(10))
+case class Config(fileSize: Option[Int] = Some(10),master: Option[String] = None)
 
 object fileG{
   val conf = new SparkConf().setAppName("Random Integer Sort File Generator")
@@ -21,6 +21,7 @@ object fileG{
     // getting the values for ingestion using scopt
     val appConfig = parseCommandLine(args).getOrElse(Config())
     val size = appConfig.fileSize.getOrElse(10)
+    val master = appConfig.master.getOrElse("")
 
     val mustSort = fileGen(size).persist()
 
@@ -41,8 +42,8 @@ object fileG{
 
     //write to results file
     val writer = new PrintWriter(new FileOutputStream(new File("Results.txt"), true))
-    writer.append(s"RDDTime : ${RDDSort._1}, RDDSpace : ${RDDSort._2}, RDDResult: ${RDDSort._3}\n"++
-      s"DFTime : ${DFSort._1}, DFSpace : ${DFSort._2}, DFResult: ${DFSort._3}\n\n"
+    writer.append(s"RDDTime : ${RDDSort._1}, RDDSpace : ${RDDSort._2}, RDDResult: ${RDDSort._3}, master : ${master}\n"++
+      s"DFTime : ${DFSort._1}, DFSpace : ${DFSort._2}, DFResult: ${DFSort._3}, master : ${master}\n\n"
     )
     writer.close()
 
@@ -90,7 +91,10 @@ object fileG{
       head("Ingest", "1.0")
       opt[Int]('s', "size") action { (x, c) =>
         c.copy(fileSize = Some(x))
-      } text ("fileSize is a Int property")
+      } text ("fileSize is an Int property")
+      opt[String]('m', "master") action { (x, c) =>
+        c.copy(master = Some(x))
+      } text ("master is a String property")
       help("help") text ("Usage: -s [fileSize]")
     }
     parser.parse(args, Config())
