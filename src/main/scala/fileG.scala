@@ -77,13 +77,13 @@ object fileG{
 
 
   }
-  /*def dataSetSort(ds: Dataset): Array[Int] ={
+  def dataSetSort(ds: Dataset): Array[Int] ={
 
     ds.
     //ds.s //sort().write.save("df.txt")
     ds.take(100).asInstanceOf[Array[Int]]
 
-  }*/
+  }
 
   def parseCommandLine(args: Array[String]): Option[Config] = {
     val parser = new scopt.OptionParser[Config]("scopt") {
