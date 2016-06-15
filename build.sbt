@@ -11,7 +11,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" % "spark-core_2.10" % "1.6.1" % "provided",
   "org.apache.spark" % "spark-sql_2.10" % "1.6.1" % "provided",
   "com.github.marklister" %% "product-collections" % "1.4.3",
-  "com.github.scopt" %% "scopt" % "3.4.0"
+  "com.github.scopt" %% "scopt" % "3.4.0",
+  "com.databricks" % "spark-csv_2.10" % "1.4.0"
 )
 
 mainClass in assembly := Some("gov.anl.alcf.fileG")

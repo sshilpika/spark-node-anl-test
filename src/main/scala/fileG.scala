@@ -6,6 +6,7 @@ import util.Random
 import org.apache.spark.rdd.RDD
 import org.apache.spark._
 import org.apache.spark.sql._
+import org.apache.spark.sql.types.{StructType, StructField, StringType, IntegerType}
 
 case class Config(fileSize: Option[Int] = Some(10),master: Option[String] = None)
 
@@ -25,16 +26,33 @@ object fileG{
 
     val mustSort = fileGen(size).persist()
 
-    println("RDD SORTED ")
-      val RDDSort= performance{
-        RddSort(mustSort,size)
-      }
+    val customSchema = StructType(Array(
+      StructField("_1", IntegerType, true)))
 
-
+    //store file before sorting
     val mustSortDF = mustSort.toDF()
+    mustSortDF.write
+      .format("com.databricks.spark.csv")
+      .option("header", "true")
+      .save("forsort.csv")
+
+
+
     println("DF sorted :")
     val DFSort = performance {
-      dataFrameSort(mustSortDF,size)
+
+      val df = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .schema(customSchema)
+        .load("forsort.csv")
+
+      dataFrameSort(df,size)
+    }
+
+    println("RDD SORTED ")
+    val RDDSort= performance{
+      RddSort(mustSort,size)
     }
 
     //TODO write results to CSV instead of text file
