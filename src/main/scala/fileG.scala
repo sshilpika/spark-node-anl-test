@@ -34,14 +34,14 @@ object fileG{
     mustSortDF.write
       .format("com.databricks.spark.csv")
       .option("header", "true")
-      .save("forsort.csv")
+      .save("/projects/ExaHDF5/sshilpika/forsort.csv")
 
 
     val df = sqlContext.read
       .format("com.databricks.spark.csv")
       .option("header", "true") // Use first line of all files as header
       .schema(customSchema)
-      .load("forsort.csv")
+      .load("/projects/ExaHDF5/sshilpika/forsort.csv")
 
     println("DF sorted :")
     val DFSort = performance {
