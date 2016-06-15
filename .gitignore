@@ -83,3 +83,7 @@ literalinclude-scala/
 res2.txt
 finalRes100/
 sortedRes/
+df.txt
+derby.log
+RDDSortedRes/
+DFSortedRes/
