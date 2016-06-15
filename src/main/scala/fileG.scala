@@ -37,15 +37,16 @@ object fileG{
       .save("forsort.csv")
 
 
+    val df = sqlContext.read
+      .format("com.databricks.spark.csv")
+      .option("header", "true") // Use first line of all files as header
+      .schema(customSchema)
+      .load("forsort.csv")
 
     println("DF sorted :")
     val DFSort = performance {
 
-      val df = sqlContext.read
-        .format("com.databricks.spark.csv")
-        .option("header", "true") // Use first line of all files as header
-        .schema(customSchema)
-        .load("forsort.csv")
+
 
       dataFrameSort(df,size)
     }
