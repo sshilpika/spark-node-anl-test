@@ -83,7 +83,7 @@ object fileG{
 
     def RddSort(mustSort: RDD[Int],size: Int): Long ={
       val result = mustSort.sortBy(c=>c,true)
-      result.saveAsTextFile("RDDSortedRes"+size*size)
+      result.saveAsTextFile("/projects/ExaHDF5/sshilpika/RDDSortedRes"+size*size)
       result.count()
 
     }
@@ -91,7 +91,7 @@ object fileG{
     def dataFrameSort(df: DataFrame,size: Int): Long ={
 
       val sorted = df.sort("_1")
-      val writeInto = sorted.write.save("DFSortedRes"+size*size)
+      val writeInto = sorted.write.save("/projects/ExaHDF5/sshilpika/DFSortedRes"+size*size)
 
       sorted.count()
 
