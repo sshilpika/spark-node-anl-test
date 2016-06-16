@@ -8,7 +8,7 @@ import org.apache.spark._
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{StructType, StructField, StringType, IntegerType}
 
-case class Config(fileSize: Option[Int] = Some(1000000),master: Option[String] = Some("cluster"))
+case class Config(partitions: Option[Int] = Some(4),fileSize: Option[Int] = Some(1000000),master: Option[String] = Some("cluster"))
 
 object fileG{
   val conf = new SparkConf().setAppName("Random Integer Sort File Generator")
@@ -19,7 +19,7 @@ object fileG{
   val customSchema = StructType(Array(
     StructField("_1", IntegerType, true)))
 
-  val defaultPartitions = 16
+  //var defaultPartitions = 4
 
 	def main(args:Array[String]):Unit = {
 
@@ -27,8 +27,9 @@ object fileG{
     val appConfig = parseCommandLine(args).getOrElse(Config())
     val size = appConfig.fileSize.getOrElse(10)
     val master = appConfig.master.getOrElse("")
+    val  defaultPartitions = appConfig.partitions.getOrElse(4)
 
-    val mustSort = fileGen(size).persist()
+    val mustSort = fileGen(size,defaultPartitions).persist()
 
     //store file before sorting
     val mustSortDF = mustSort.toDF()
@@ -67,7 +68,7 @@ object fileG{
 
   }
 
-  def fileGen(size : Int): RDD[Int] ={
+  def fileGen(size : Int,defaultPartitions:Int): RDD[Int] ={
     val one = spark.parallelize(Seq.fill(size)(size),defaultPartitions)
     one.flatMap(x => Seq.fill(x)(Random.nextInt))
   }
@@ -131,6 +132,9 @@ object fileG{
       opt[Int]('s', "size") action { (x, c) =>
         c.copy(fileSize = Some(x))
       } text ("fileSize is an Int property")
+      opt[Int]('p', "partitions") action { (x, c) =>
+        c.copy(partitions = Some(x))
+      } text ("partition is an Int property")
       opt[String]('m', "master") action { (x, c) =>
         c.copy(master = Some(x))
       } text ("master is a String property")
