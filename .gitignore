@@ -88,3 +88,4 @@ derby.log
 RDDSortedRes/
 DFSortedRes/
 forsort.csv/
+metastore_db/

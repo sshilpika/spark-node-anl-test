@@ -57,7 +57,8 @@ object fileG{
     //write to results file
     val writer = new PrintWriter(new FileOutputStream(new File("Results.txt"), true))
     writer.append(s"RDDTime : ${RDDSort._1}, RDDSpace : ${RDDSort._2}, RDDResult: ${RDDSort._3}, master : ${master}\n"++
-      s"DFTime : ${DFSort._1}, DFSpace : ${DFSort._2}, DFResult: ${DFSort._3}, master : ${master}\n\n"
+      s"DFTime : ${DFSort._1}, DFSpace : ${DFSort._2}, DFResult: ${DFSort._3}, master : ${master}\n\n"++
+      s"DFTime : ${DSSort._1}, DFSpace : ${DSSort._2}, DFResult: ${DSSort._3}, master : ${master}\n\n"
     )
     writer.close()
 
