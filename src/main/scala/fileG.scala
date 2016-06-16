@@ -16,6 +16,10 @@ object fileG{
 
   val sqlContext = new org.apache.spark.sql.SQLContext(spark)
   import sqlContext.implicits._
+  val customSchema = StructType(Array(
+    StructField("_1", IntegerType, true)))
+
+  val defaultPartitions = 16
 
 	def main(args:Array[String]):Unit = {
 
@@ -26,38 +30,29 @@ object fileG{
 
     val mustSort = fileGen(size).persist()
 
-    val customSchema = StructType(Array(
-      StructField("_1", IntegerType, true)))
-
     //store file before sorting
     val mustSortDF = mustSort.toDF()
-    mustSortDF.write
-      .format("com.databricks.spark.csv")
-      .option("header", "true")
-      .save("/projects/ExaHDF5/sshilpika/forsort.csv")
 
-
-    val df = sqlContext.read
-      .format("com.databricks.spark.csv")
-      .option("header", "true") // Use first line of all files as header
-      .schema(customSchema)
-      .load("/projects/ExaHDF5/sshilpika/forsort.csv")
+    writeCSV(mustSortDF)
+    val df = readCSV()
 
     println("DF sorted :")
     val DFSort = performance {
 
-
-
       dataFrameSort(df,size)
     }
+
+    val ds = mustSort.toDS()
+    println("DS sorted :")
+    val DSSort = performance {
+      dataSetSort(ds)
+    }
+
 
     println("RDD SORTED ")
     val RDDSort= performance{
       RddSort(mustSort,size)
     }
-
-    //TODO write results to CSV instead of text file
-    //val RDDres = List(("time",RDDSort._1),("space",RDDSort._2),("result_length",RDDSort._3)).csvIterator.mkString("\n")
 
     //write to results file
     val writer = new PrintWriter(new FileOutputStream(new File("Results.txt"), true))
@@ -72,7 +67,7 @@ object fileG{
   }
 
   def fileGen(size : Int): RDD[Int] ={
-    val one = spark.parallelize(Seq.fill(size)(size),32)
+    val one = spark.parallelize(Seq.fill(size)(size),defaultPartitions)
     one.flatMap(x => Seq.fill(x)(Random.nextInt))
   }
 
@@ -97,13 +92,37 @@ object fileG{
 
 
   }
-  /*def dataSetSort(ds: Dataset): Array[Int] ={
+  def dataSetSort(ds: Dataset[Int]): Dataset[Int] ={
 
-    //ds.
-    //ds.s //sort().write.save("df.txt")
-    //ds.take(100).asInstanceOf[Array[Int]]
+    //quickSort(ds)
+    val z = ds.mapPartitions(items => {
+      quickSort(items.toArray[Int]).iterator
+    })
 
-  }*/
+    //merge sort for partitions
+    (1 until 4).foldLeft(z:Dataset[Int]){case(dsTmp,x)=> {
+      dsTmp.coalesce(4-x).mapPartitions(items => {
+        mergeSort(items.toList).toIterator
+      })
+
+    }}
+
+  }
+
+  def writeCSV(mustSortDF: DataFrame): Unit ={
+    mustSortDF.write
+      .format("com.databricks.spark.csv")
+      .option("header", "true")
+      .save("/projects/ExaHDF5/sshilpika/forsort.csv")
+  }
+
+  def readCSV():DataFrame={
+    sqlContext.read
+    .format("com.databricks.spark.csv")
+    .option("header", "true") // Use first line of all files as header
+    .schema(customSchema)
+    .load("/projects/ExaHDF5/sshilpika/forsort.csv")
+  }
 
   def parseCommandLine(args: Array[String]): Option[Config] = {
     val parser = new scopt.OptionParser[Config]("scopt") {
